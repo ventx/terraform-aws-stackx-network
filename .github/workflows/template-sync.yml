@@ -16,6 +16,6 @@ jobs:
       - name: actions-template-sync
         uses: AndreasAugustin/actions-template-sync@v0.4.0-draft
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           source_repo_path: ventx/stackx-template-terraform
           pr_labels: chore,template-sync
