@@ -22,7 +22,7 @@ jobs:
     steps:
       - name: Start LocalStack
         id: localstack
-        if: ${{ secrets.LOCALSTACK_API_KEY }} != false
+        if: env.LOCALSTACK_API_KEY != 'false'
         run: |
           # install LocalStack cli
           pip install localstack
@@ -44,7 +44,7 @@ jobs:
           echo "TFVERSION=$TFVER" >> $GITHUB_ENV
 
       - name: Copy localstack provider to current dir
-        if: ${{ secrets.LOCALSTACK_API_KEY }} != false
+        if: env.LOCALSTACK_API_KEY != 'false'
         run: |
           cp tests/localstack.tf .
 
@@ -103,5 +103,5 @@ jobs:
 
       - name: Cleanup
         id: cleanup
-        if: ${{ secrets.LOCALSTACK_API_KEY }} != false
+        if: env.LOCALSTACK_API_KEY != 'false'
         run: rm -f localstack-provider.tf
