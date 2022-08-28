@@ -349,7 +349,7 @@ Together, we can make terraform-aws-stackx-network **better**!
 
 First off, thanks for taking the time to contribute! Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make will benefit everybody else and are **greatly appreciated**.
 
-Please read [our contribution guidelines](docs/CONTRIBUTING.md), and thank you for being involved!
+Please read [our contribution guidelines](.github/CONTRIBUTING.md), and thank you for being involved!
 
 
 ## Security
@@ -357,7 +357,7 @@ Please read [our contribution guidelines](docs/CONTRIBUTING.md), and thank you f
 terraform-aws-stackx-network follows good practices of security, but 100% security cannot be assured.
 terraform-aws-stackx-network is provided **"as is"** without any **warranty**. Use at your own risk.
 
-_For more information and to report security issues, please refer to our [security documentation](docs/SECURITY.md)._
+_For more information and to report security issues, please refer to our [security documentation](.github/SECURITY.md)._
 
 
 ## License
