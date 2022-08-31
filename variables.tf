@@ -39,6 +39,7 @@ variable "ipv6" {
   type        = bool
   default     = true
 }
+
 variable "single_nat_gateway" {
   description = "Should be true if you want to provision a single shared NAT Gateway across all of your private networks (cost efficiency)"
   type        = bool

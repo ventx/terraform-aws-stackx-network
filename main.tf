@@ -6,6 +6,7 @@ locals {
   tags = merge(
     var.tags,
     {
+      "Name"   = var.name
       "Module" = "terraform-aws-stackx-network"
       "Github" = "https://github.com/ventx/terraform-aws-stackx-network"
     }
@@ -27,6 +28,7 @@ locals {
     var.private_subnet_tags,
     var.k8s ?
     {
+      "karpenter.sh/discovery"                      = local.cluster_name
       "kubernetes.io/cluster/${local.cluster_name}" = "shared",
       "kubernetes.io/role/internal-elb"             = "1",
     } : null
