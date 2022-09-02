@@ -244,3 +244,4 @@ plan.json
 rover.zip
 /localstack.tf
 terraform.tfvars
+docs/images/icon-*.png
