@@ -15,6 +15,7 @@ jobs:
       DNS_ADDRESS: 0 # https://github.com/localstack/localstack/issues/6501
       LOCALSTACK_API_KEY: ${{ secrets.LOCALSTACK_API_KEY }}
       TFDIR: .
+      TF_VAR_subnet_ids: '["test"]'
       TF_VAR_workspace_name: rover
       TFVER: 1.1.2 # Rover uses Terraform 1.1.2, so we need to use the same version for the plan file
     steps:
