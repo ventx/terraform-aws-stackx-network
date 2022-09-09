@@ -23,6 +23,9 @@ jobs:
         id: localstack
         if: env.LOCALSTACK_API_KEY != 'false'
         run: |
+          # Workaround: https://github.com/localstack/localstack/pull/6831
+          pip install pyOpenSSL --upgrade
+          pip install cryptography --upgrade
           # install LocalStack cli
           pip install localstack
           # Make sure to pull the latest version of the image
