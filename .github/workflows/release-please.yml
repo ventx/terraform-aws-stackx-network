@@ -40,39 +40,45 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Set Versions
-        run: |
-          PYTHONVER=$(grep .tool-versions -e "python" | sed "s/python \(.*\)/\1/")
-          echo "PYTHONVERSION=$PYTHONVER" >> $GITHUB_ENV
-
       - name: Copy localstack provider to current dir
         if: env.LOCALSTACK_API_KEY != 'false'
         run: |
           cp tests/localstack.tf .
 
       - name: Setup Terraform
+        if: env.LOCALSTACK_API_KEY != 'false'
         uses: hashicorp/setup-terraform@v1
         with:
           terraform_version: ${{ env.TFVER }}
 
       - name: Terraform Init
+        if: env.LOCALSTACK_API_KEY != 'false'
         run: terraform -chdir=${{ env.TFDIR }} init
 
       - name: Terraform Plan
+        if: env.LOCALSTACK_API_KEY != 'false'
         id: plan
         run: terraform -chdir=${{ env.TFDIR }} plan -no-color -input=false -out=plan.out
 
       - name: stackx-action-rover-terraform
+        if: env.LOCALSTACK_API_KEY != 'false'
         uses: ventx/stackx-action-rover-terraform@v1
 
       - name: Cleanup
+        if: env.LOCALSTACK_API_KEY != 'false'
         id: cleanup
         run: rm -f localstack-provider.tf rover.zip
 
       - name: Move rover image to docs directory
+        if: env.LOCALSTACK_API_KEY != 'false'
         run: |
           mv ${{ env.TFDIR }}/rover.png docs/images/screenshot2.png
           mv ${{ env.TFDIR }}/rover.svg docs/images/screenshot2.svg
+
+      - name: Set Versions
+        run: |
+          PYTHONVER=$(grep .tool-versions -e "python" | sed "s/python \(.*\)/\1/")
+          echo "PYTHONVERSION=$PYTHONVER" >> $GITHUB_ENV
 
       - name: Setup Python
         uses: actions/setup-python@v4
