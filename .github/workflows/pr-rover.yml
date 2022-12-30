@@ -7,6 +7,9 @@ on:
       - 'tests/**'
       - '**.tf'
 
+permissions:
+  id-token: write
+
 jobs:
   rover-trusted:
     name: Rover (trusted)
