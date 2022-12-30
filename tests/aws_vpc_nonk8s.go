@@ -1,44 +1,16 @@
 package tests
 
 import (
+	"fmt"
 	"github.com/gruntwork-io/terratest/modules/aws"
-	"github.com/gruntwork-io/terratest/modules/files"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"log"
-	"net"
-	"os"
 	"strings"
 	"testing"
 )
 
 func runAwsNetworkNonK8sTest(t *testing.T) {
-
-	// Localstack check
-	//
-	// Waiting for:
-	// https://github.com/gruntwork-io/terratest/pull/495
-	// to be implemented / merged.
-	//
-	// Check if we can listen on port 4566 (a localstack port)
-	// If YES (no localstack port found) --> Continue with additional tests
-	// If NO (we cant listen, therefore localstack port was found) --> Skip additional tests
-	//
-
-	port := "4566"
-	listener, listenerErr := net.Listen("tcp", "127.0.0.1:"+port)
-
-	if listenerErr != nil {
-		log.Printf("Running Localstack found (can't listen on localstack port %q): %s\n", port, listenerErr)
-		log.Println("Copy localstack.tf provider configuration file to examples/all/localstack-provider.tf (will be removed at the end)")
-
-		defer os.Remove("../examples/non-k8s/localstack-provider.tf")
-		err := files.CopyFile("localstack.tf", "./../examples/non-k8s/localstack-provider.tf")
-		if err != nil {
-			log.Fatalf("Failed to copy localstack.tf to examples/non-k8s/localstack-provider.tf: %s", err)
-		}
-	}
 
 	// Pick a random AWS region to test in. This helps ensure your code works in all regions.
 	// approvedRegions match with stackx ones
@@ -77,32 +49,23 @@ func runAwsNetworkNonK8sTest(t *testing.T) {
 	privateSubnetsCount := len(privateSubnetFields)
 	assert.True(t, privateSubnetsCount == numberAzs)
 
-	if listenerErr == nil {
-		log.Println("Running against AWS - Continue with additional tests")
+	subnets := aws.GetSubnetsForVpc(t, vpcId, awsRegion)
 
-		// Closing the listener we created to check if Localstack is running
-		errClose := listener.Close()
-		if errClose != nil {
-			log.Fatalf("Error while closing port %s for testing if Localstack is running: %v", port, errClose)
-		}
-		subnets := aws.GetSubnetsForVpc(t, vpcId, awsRegion)
+	fmt.Printf("\nSubnets: %v\n", subnets)
 
-		require.Equal(t, 2*numberAzs, len(subnets))
+	replacer := strings.NewReplacer("[", "", "]", "", "\"", "", "\n", "", " ", "")
+	subnetPublID := replacer.Replace(publicSubnetIds)
+	arrayPublSubnets := strings.Split(subnetPublID, ",")
+	subnetPrivID := replacer.Replace(privateSubnetIds)
+	arrayPrivSubnets := strings.Split(subnetPrivID, ",")
 
-		replacer := strings.NewReplacer("[", "", "]", "", "\"", "", "\n", "", " ", "")
-		subnetPublID := replacer.Replace(publicSubnetIds)
-		arrayPublSubnets := strings.Split(subnetPublID, ",")
-		subnetPrivID := replacer.Replace(privateSubnetIds)
-		arrayPrivSubnets := strings.Split(subnetPrivID, ",")
+	// Verify if the network that is supposed to be private is really private
+	for i := 0; i < len(arrayPrivSubnets)-1; i++ {
+		assert.False(t, aws.IsPublicSubnet(t, arrayPrivSubnets[i], awsRegion))
+	}
 
-		// Verify if the network that is supposed to be private is really private
-		for i := 0; i < len(arrayPrivSubnets)-1; i++ {
-			assert.False(t, aws.IsPublicSubnet(t, arrayPrivSubnets[i], awsRegion))
-		}
-
-		// Verify if the network that is supposed to be public is really public
-		for i := 0; i < len(arrayPublSubnets)-1; i++ {
-			assert.True(t, aws.IsPublicSubnet(t, arrayPublSubnets[i], awsRegion))
-		}
+	// Verify if the network that is supposed to be public is really public
+	for i := 0; i < len(arrayPublSubnets)-1; i++ {
+		assert.True(t, aws.IsPublicSubnet(t, arrayPublSubnets[i], awsRegion))
 	}
 }

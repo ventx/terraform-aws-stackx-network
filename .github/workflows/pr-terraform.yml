@@ -6,50 +6,38 @@ on:
       - 'examples/**'
       - 'tests/**'
       - '**.tf'
+  repository_dispatch:
+    types: [ ok-to-test-command ]
+
+permissions:
+  id-token: write
+  pull-requests: write
 
 jobs:
-  terraform:
-    name: Terraform
+  terraform-trusted:
+    name: Terraform (trusted)
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
       AWS_DEFAULT_REGION: eu-central-1
-      DNS_ADDRESS: 0 # https://github.com/localstack/localstack/issues/6501
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      LOCALSTACK_API_KEY: ${{ secrets.LOCALSTACK_API_KEY }}
       TF_IN_AUTOMATION: true
       TFDIR: examples
     steps:
-      - name: Start LocalStack
-        id: localstack
-        if: env.LOCALSTACK_API_KEY != 'false'
-        run: |
-          # Workaround: https://github.com/localstack/localstack/pull/6831
-          pip install pyOpenSSL --upgrade
-          pip install cryptography --upgrade
-          # install LocalStack cli
-          pip install localstack
-          # Make sure to pull the latest version of the image
-          docker pull localstack/localstack
-          # Start LocalStack in the background
-          localstack start -d
-          # Wait 30 seconds for the LocalStack container to become ready before timing out
-          echo "Waiting for LocalStack startup..."
-          localstack wait -t 30
-          echo "Startup complete"
-
       - name: Checkout
         uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
+          role-to-assume: ${{ secrets.AWS_GH_OIDC }}
 
       - name: Set Versions
         run: |
           TFVER=$(grep .tool-versions -e "terraform" | sed "s/terraform \(.*\)/\1/")
           echo "TFVERSION=$TFVER" >> $GITHUB_ENV
-
-      - name: Copy localstack provider to current dir
-        if: env.LOCALSTACK_API_KEY != 'false'
-        run: |
-          cp tests/localstack.tf .
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
@@ -104,7 +92,115 @@ jobs:
               body: output
             })
 
-      - name: Cleanup
-        id: cleanup
-        if: env.LOCALSTACK_API_KEY != 'false'
-        run: rm -f localstack-provider.tf
+  terraform-fork:
+    name: Terraform (fork)
+    if:
+      github.event_name == 'repository_dispatch' &&
+      github.event.client_payload.slash_command.sha != '' &&
+      contains(github.event.client_payload.pull_request.head.sha, github.event.client_payload.slash_command.sha)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      AWS_DEFAULT_REGION: eu-central-1
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      TF_IN_AUTOMATION: true
+      TFDIR: examples
+    steps:
+      - name: Fork based /ok-to-test checkout
+        uses: actions/checkout@v3
+        with:
+          ref: 'refs/pull/${{ github.event.client_payload.pull_request.number }}/merge'
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
+          role-to-assume: ${{ secrets.AWS_GH_OIDC }}
+
+      - name: Set Versions
+        run: |
+          TFVER=$(grep .tool-versions -e "terraform" | sed "s/terraform \(.*\)/\1/")
+          echo "TFVERSION=$TFVER" >> $GITHUB_ENV
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: ${{ env.TFVERSION }}
+
+      - name: Terraform Format
+        id: fmt
+        run: terraform fmt -check -recursive
+        continue-on-error: true
+
+      - name: Terraform Init
+        id: init
+        run: terraform -chdir=${{ env.TFDIR }} init
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform -chdir=${{ env.TFDIR }} validate -no-color
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform -chdir=${{ env.TFDIR }} plan -no-color -input=false
+        continue-on-error: true
+
+      - name: Update Pull Request
+        uses: actions/github-script@v6
+        if: github.event_name == 'pull_request'
+        env:
+          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+
+            <details><summary>Show Plan</summary>
+
+            \`\`\`\n
+            ${process.env.PLAN}
+            \`\`\`
+
+            </details>
+
+            *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+
+      # Update check run called "integration-fork"
+      - uses: actions/github-script@v5
+        id: update-check-run
+        if: ${{ always() }}
+        env:
+          number: ${{ github.event.client_payload.pull_request.number }}
+          job: ${{ github.job }}
+          # Conveniently, job.status maps to https://developer.github.com/v3/checks/runs/#update-a-check-run
+          conclusion: ${{ job.status }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: pull } = await github.rest.pulls.get({
+              ...context.repo,
+              pull_number: process.env.number
+            });
+            const ref = pull.head.sha;
+            const { data: checks } = await github.rest.checks.listForRef({
+              ...context.repo,
+              ref
+            });
+            const check = checks.check_runs.filter(c => c.name === process.env.job);
+            const { data: result } = await github.rest.checks.update({
+              ...context.repo,
+              check_run_id: check[0].id,
+              status: 'completed',
+              conclusion: process.env.conclusion
+            });
+            return result;
