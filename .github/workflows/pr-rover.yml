@@ -6,6 +6,8 @@ on:
       - 'examples/**'
       - 'tests/**'
       - '**.tf'
+  repository_dispatch:
+    types: [ ok-to-test-command ]
 
 permissions:
   id-token: write
