@@ -1,11 +1,11 @@
 package tests
 
 import (
+	"fmt"
 	"github.com/gruntwork-io/terratest/modules/aws"
 	"github.com/gruntwork-io/terratest/modules/files"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"log"
 	"net"
 	"os"
@@ -87,7 +87,7 @@ func runAwsNetworkAllTest(t *testing.T) {
 		}
 		subnets := aws.GetSubnetsForVpc(t, vpcId, awsRegion)
 
-		require.Equal(t, 2*numberAzs, len(subnets))
+		fmt.Printf("\nSubnets: %v\n", subnets)
 
 		replacer := strings.NewReplacer("[", "", "]", "", "\"", "", "\n", "", " ", "")
 		subnetPublID := replacer.Replace(publicSubnetIds)
