@@ -8,8 +8,9 @@ on:
       - '**.tf'
 
 jobs:
-  terratest:
-    name: Terratest
+  terratest-trusted:
+    name: Terratest (trusted)
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -19,6 +20,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
+          role-to-assume: ${{ secrets.AWS_GH_OIDC }}
 
       - name: Set Versions
         run: |
@@ -38,3 +45,76 @@ jobs:
         id: terratest
         run: |
           cd tests && go test -v -count 1 -short -timeout "10m" -parallel 32 `go list ./...`
+
+  terratest-fork:
+    name: Terratest (fork)
+    if:
+      github.event_name == 'repository_dispatch' &&
+      github.event.client_payload.slash_command.sha != '' &&
+      contains(github.event.client_payload.pull_request.head.sha, github.event.client_payload.slash_command.sha)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      AWS_DEFAULT_REGION: eu-central-1
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      TF_IN_AUTOMATION: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: 'refs/pull/${{ github.event.client_payload.pull_request.number }}/merge'
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
+          role-to-assume: ${{ secrets.AWS_GH_OIDC }}
+
+      - name: Set Versions
+        run: |
+          GOLANGVER=$(grep .tool-versions -e "golang" | sed "s/golang \(.*\)/\1/")
+          echo "GOLANGVERSION=$GOLANGVER" >> $GITHUB_ENV
+
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ env.GOLANGVERSION }}
+
+      - name: Download Go modules
+        run: |
+          cd tests && go mod download
+
+      - name: Terratest
+        id: terratest
+        run: |
+          cd tests && go test -v -count 1 -short -timeout "10m" -parallel 32 `go list ./...`
+
+      # Update check run called "integration-fork"
+      - uses: actions/github-script@v5
+        id: update-check-run
+        if: ${{ always() }}
+        env:
+          number: ${{ github.event.client_payload.pull_request.number }}
+          job: ${{ github.job }}
+          # Conveniently, job.status maps to https://developer.github.com/v3/checks/runs/#update-a-check-run
+          conclusion: ${{ job.status }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: pull } = await github.rest.pulls.get({
+              ...context.repo,
+              pull_number: process.env.number
+            });
+            const ref = pull.head.sha;
+            const { data: checks } = await github.rest.checks.listForRef({
+              ...context.repo,
+              ref
+            });
+            const check = checks.check_runs.filter(c => c.name === process.env.job);
+            const { data: result } = await github.rest.checks.update({
+              ...context.repo,
+              check_run_id: check[0].id,
+              status: 'completed',
+              conclusion: process.env.conclusion
+            });
+            return result;
