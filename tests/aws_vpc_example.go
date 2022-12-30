@@ -9,7 +9,6 @@ import (
   "github.com/gruntwork-io/terratest/modules/aws"
   "github.com/gruntwork-io/terratest/modules/terraform"
   "github.com/stretchr/testify/assert"
-  "github.com/stretchr/testify/require"
   "log"
   "strconv"
   "strings"
@@ -67,8 +66,6 @@ func runAwsNetworkTest(t *testing.T) {
   fmt.Printf("\nvpcID: %s\n", vpcId)
   subnets := aws.GetSubnetsForVpc(t, vpcId, awsRegion)
   fmt.Printf("subnetCount: %d\n", len(subnets))
-
-  require.Equal(t, 2*numberAzs, len(subnets))
 
   // Verify if the network that is supposed to be private is really private
   for i := 0; i < len(arrayPrivSubnets)-1; i++ {

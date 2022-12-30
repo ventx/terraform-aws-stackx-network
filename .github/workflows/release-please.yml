@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+permissions:
+  id-token: write
+
 jobs:
   release-please:
     name: release-please
@@ -12,65 +15,40 @@ jobs:
     timeout-minutes: 15
     env:
       AWS_DEFAULT_REGION: eu-central-1
-      DNS_ADDRESS: 0 # https://github.com/localstack/localstack/issues/6501
-      LOCALSTACK_API_KEY: ${{ secrets.LOCALSTACK_API_KEY }}
       TFDIR: .
       TF_VAR_subnet_ids: '["test"]'
       TF_VAR_workspace_name: rover
       TFVER: 1.1.2 # Rover uses Terraform 1.1.2, so we need to use the same version for the plan file
     steps:
-      - name: Start LocalStack
-        id: localstack
-        if: env.LOCALSTACK_API_KEY != 'false'
-        run: |
-          # Workaround: https://github.com/localstack/localstack/pull/6831
-          pip install pyOpenSSL --upgrade
-          pip install cryptography --upgrade
-          # install LocalStack cli
-          pip install localstack
-          # Make sure to pull the latest version of the image
-          docker pull localstack/localstack
-          # Start LocalStack in the background
-          localstack start -d
-          # Wait 30 seconds for the LocalStack container to become ready before timing out
-          echo "Waiting for LocalStack startup..."
-          localstack wait -t 30
-          echo "Startup complete"
-
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Copy localstack provider to current dir
-        if: env.LOCALSTACK_API_KEY != 'false'
-        run: |
-          cp tests/localstack.tf .
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
+          role-to-assume: ${{ secrets.AWS_GH_OIDC }}
 
       - name: Setup Terraform
-        if: env.LOCALSTACK_API_KEY != 'false'
         uses: hashicorp/setup-terraform@v1
         with:
           terraform_version: ${{ env.TFVER }}
 
       - name: Terraform Init
-        if: env.LOCALSTACK_API_KEY != 'false'
         run: terraform -chdir=${{ env.TFDIR }} init
 
       - name: Terraform Plan
-        if: env.LOCALSTACK_API_KEY != 'false'
         id: plan
         run: terraform -chdir=${{ env.TFDIR }} plan -no-color -input=false -out=plan.out
 
       - name: stackx-action-rover-terraform
-        if: env.LOCALSTACK_API_KEY != 'false'
         uses: ventx/stackx-action-rover-terraform@v1
 
       - name: Cleanup
-        if: env.LOCALSTACK_API_KEY != 'false'
         id: cleanup
-        run: rm -f localstack-provider.tf rover.zip
+        run: rm -f rover.zip
 
       - name: Move rover image to docs directory
-        if: env.LOCALSTACK_API_KEY != 'false'
         run: |
           mv ${{ env.TFDIR }}/rover.png docs/images/screenshot2.png
           mv ${{ env.TFDIR }}/rover.svg docs/images/screenshot2.svg
