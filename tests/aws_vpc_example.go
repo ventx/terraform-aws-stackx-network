@@ -122,7 +122,10 @@ func runAwsNetworkTest(t *testing.T) {
 		if errClose != nil {
 			log.Fatalf("Error while closing port %s for testing if Localstack is running: %v", port, errClose)
 		}
+
+		fmt.Printf("vpcID: %s", vpcId)
 		subnets := aws.GetSubnetsForVpc(t, vpcId, awsRegion)
+		fmt.Printf("subnetCount: %d", len(subnets))
 
 		require.Equal(t, 2*numberAzs, len(subnets))
 
