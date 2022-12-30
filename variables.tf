@@ -25,7 +25,7 @@ variable "workspace_name" {
 }
 
 variable "cluster_name" {
-  description = "EKS Cluster name to add in tags for ELB and cluster-autoscaler discovery of subnets / VPC"
+  description = "EKS Cluster name to add in tags for ELB and cluster-autoscaler / karpenter discovery of subnets / VPC"
   type        = string
   default     = "stackx"
   validation {
