@@ -15,7 +15,7 @@ resource "aws_subnet" "private" {
   )
 
   timeouts {
-    delete = "30m"
+    delete = "20m"
   }
 }
 
