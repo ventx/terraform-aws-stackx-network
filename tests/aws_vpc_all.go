@@ -49,13 +49,6 @@ func runAwsNetworkAllTest(t *testing.T) {
   privateSubnetsCount := len(privateSubnetFields)
   assert.True(t, privateSubnetsCount == numberAzs)
 
-  log.Println("Running against AWS - Continue with additional tests")
-
-  // Closing the listener we created to check if Localstack is running
-  errClose := listener.Close()
-  if errClose != nil {
-    log.Fatalf("Error while closing port %s for testing if Localstack is running: %v", port, errClose)
-  }
   subnets := aws.GetSubnetsForVpc(t, vpcId, awsRegion)
 
   fmt.Printf("\nSubnets: %v\n", subnets)
