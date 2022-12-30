@@ -90,7 +90,7 @@ jobs:
       - name: Terratest
         id: terratest
         run: |
-          cd tests && go test -v -count 1 -short -timeout "10m" -parallel 32 `go list ./...`
+          cd tests && go test -v -count 1 -short -timeout "15m" -parallel 32 `go list ./...`
 
       # Update check run called "integration-fork"
       - uses: actions/github-script@v5
