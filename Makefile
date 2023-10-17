@@ -28,10 +28,7 @@ destroy: tf-destroy ## Run terraform destroy.
 plan: tf-plan ## Run terraform plan.
 
 .PHONY: test
-test: tf-test ## Run terratest on your code.
-
-.PHONY: test-fast
-test-fast: tf-test-fast ## Run terratest against localstack with 64 parallel requests.
+test: tf-test ## Run terraform test on your code.
 
 .PHONY: validate
 validate: tf-validate ## Run terraform validate for some basic HCL validation.
