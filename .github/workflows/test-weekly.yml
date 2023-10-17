@@ -1,0 +1,43 @@
+name: test-weekly
+
+on:
+  # cronjob trigger at 03:00 every monday.
+  schedule:
+  - cron:  "0 3 * * MON"
+  # manual trigger
+  workflow_dispatch:
+
+jobs:
+  test-weekly:
+    runs-on: ubuntu-latest
+    env:
+      AWS_DEFAULT_REGION: eu-central-1
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
+          role-to-assume: ${{ secrets.AWS_GH_OIDC }}
+
+      - name: Set Versions
+        run: |
+          TFVER=$(grep .tool-versions -e "terraform" | sed "s/terraform \(.*\)/\1/")
+          echo "TFVERSION=$TFVER" >> $GITHUB_ENV
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ env.TFVERSION }}
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
+
+      - name: Terraform Test
+        id: test
+        run: terraform test -verbose
