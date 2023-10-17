@@ -76,8 +76,6 @@ resource "aws_internet_gateway" "igw" {
 resource "aws_eip" "eip" {
   count = local.nat_gateway_count
 
-  vpc = true
-
   tags = var.single_nat_gateway ? local.private_subnet_tags : merge(
     local.private_subnet_tags, {
       "Name" = "${var.private_subnet_name}-${data.aws_availability_zones.available.names[count.index]}"
