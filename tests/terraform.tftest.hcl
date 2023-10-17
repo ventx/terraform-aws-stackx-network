@@ -3,37 +3,37 @@ provider "aws" {
 }
 
 variables {
-    name           = "terratest-all-0-network"
-    workspace_name = "terratest"
-    cluster_name   = "test"
-    tags           = {
-        "owner"     = "terraform-aws-network",
-        "managedby" = "terratest",
-        "project"   = "stackx",
-        "workspace" = "terratest"
-      }
+  name           = "terratest-all-0-network"
+  workspace_name = "terratest"
+  cluster_name   = "test"
+  tags = {
+    "owner"     = "terraform-aws-network",
+    "managedby" = "terratest",
+    "project"   = "stackx",
+    "workspace" = "terratest"
+  }
 
-    region = "us-east-1"
+  region = "us-east-1"
 
-    # VPC
-    single_nat_gateway = true
+  # VPC
+  single_nat_gateway = true
 
-    # Private Subnets
-    private             = true
-    private_subnet_name = "terratest-all-0-private"
+  # Private Subnets
+  private             = true
+  private_subnet_name = "terratest-all-0-private"
 
-    # Public Subnets
-    public             = true
-    public_subnet_name = "terratest-all-0-public"
+  # Public Subnets
+  public             = true
+  public_subnet_name = "terratest-all-0-public"
 
-    # Subnets
-    internal = true
-    db       = true
+  # Subnets
+  internal = true
+  db       = true
 
-    # VPC Endpoints
-    private_endpoints = true
-    public_endpoints  = true
-    s3_endpoint       = true
+  # VPC Endpoints
+  private_endpoints = true
+  public_endpoints  = true
+  s3_endpoint       = true
 }
 
 run "valid_config" {
@@ -46,7 +46,7 @@ run "valid_config" {
   }
 
   assert {
-    condition = aws_vpc.vpc.enable_dns_support == true
+    condition     = aws_vpc.vpc.enable_dns_support == true
     error_message = "VPC has not DNS enabled, did not match expected"
   }
 
