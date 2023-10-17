@@ -48,16 +48,20 @@ jobs:
 
       - name: Terraform Init
         id: init
-        run: terraform -chdir=${{ env.TFDIR }} init
-
-      - name: Terraform Validate
-        id: validate
-        run: terraform -chdir=${{ env.TFDIR }} validate -no-color
+        run: terraform init
 
       - name: Terraform Test
         id: test
         run: terraform test -verbose
         continue-on-error: true
+
+      - name: Terraform Init
+        id: init
+        run: terraform -chdir=${{ env.TFDIR }} init
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform -chdir=${{ env.TFDIR }} validate -no-color
 
       - name: Terraform Plan
         id: plan
