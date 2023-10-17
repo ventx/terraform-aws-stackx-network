@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.1](https://github.com/ventx/terraform-aws-stackx-network/compare/v0.2.0...v0.2.1) (2023-10-17)
+
+
+### Bug Fixes
+
+* remove legacy config ([f36dbd8](https://github.com/ventx/terraform-aws-stackx-network/commit/f36dbd86cd81a8348d86f5ea54eaa208d309bcc7))
+* remove the auto updating version constraint to match with conformance in other repos ([7bf4d16](https://github.com/ventx/terraform-aws-stackx-network/commit/7bf4d165122a580c6b94787a53e61b37aa18c66c))
+
 ## [0.2.0](https://github.com/ventx/terraform-aws-stackx-network/compare/v0.1.0...v0.2.0) (2022-09-09)
 
 
