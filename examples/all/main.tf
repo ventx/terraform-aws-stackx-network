@@ -33,7 +33,6 @@ module "network" {
 
   # Subnets
   internal = true
-  db       = true
   cache    = true
 
   # VPC Endpoints
