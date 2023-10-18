@@ -17,16 +17,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      AWS_DEFAULT_REGION: eu-central-1
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       TF_IN_AUTOMATION: true
       TFDIR: examples
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        if: ${{ env.AWS_DEFAULT_REGION }}
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ${{ env.AWS_DEFAULT_REGION }}
           role-to-assume: ${{ secrets.AWS_GH_OIDC }}
@@ -46,7 +46,7 @@ jobs:
         run: terraform fmt -check -recursive
         continue-on-error: true
 
-      - name: Terraform Init
+      - name: Terraform Init (test)
         id: init-test
         run: terraform init
 
@@ -55,7 +55,7 @@ jobs:
         run: terraform test -verbose
         continue-on-error: true
 
-      - name: Terraform Init
+      - name: Terraform Init (examples)
         id: init
         run: terraform -chdir=${{ env.TFDIR }} init
 
