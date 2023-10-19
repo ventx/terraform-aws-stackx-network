@@ -16,7 +16,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      AWS_DEFAULT_REGION: eu-central-1
       TFDIR: .
       TF_VAR_subnet_ids: '["test"]'
       TF_VAR_workspace_name: rover
@@ -26,10 +25,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Configure AWS credentials
-        if: ${{ env.AWS_DEFAULT_REGION }}
+        if: $CLOUD == "aws"
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-region: ${{ env.AWS_DEFAULT_REGION }}
+          aws-region: $AWS_DEFAULT_REGION
           role-to-assume: ${{ secrets.AWS_GH_OIDC }}
 
       - name: Setup Terraform
