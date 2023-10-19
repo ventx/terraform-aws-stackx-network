@@ -16,6 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
+      AWS_DEFAULT_REGION: eu-central-1
       TFDIR: .
       TF_VAR_subnet_ids: '["test"]'
       TF_VAR_workspace_name: rover
