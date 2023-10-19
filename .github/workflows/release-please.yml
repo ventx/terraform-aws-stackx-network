@@ -6,8 +6,8 @@ on:
       - main
 
 permissions:
-  id-token: write
   contents: write
+  id-token: write
   pull-requests: write
 
 jobs:
@@ -16,23 +16,23 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      AWS_DEFAULT_REGION: eu-central-1
       TFDIR: .
       TF_VAR_subnet_ids: '["test"]'
       TF_VAR_workspace_name: rover
       TFVER: 1.1.2 # Rover uses Terraform 1.1.2, so we need to use the same version for the plan file
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        if: ${{ env.AWS_DEFAULT_REGION }}
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ${{ env.AWS_DEFAULT_REGION }}
           role-to-assume: ${{ secrets.AWS_GH_OIDC }}
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v1
+        uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: ${{ env.TFVER }}
 
@@ -85,7 +85,7 @@ jobs:
           terraform: 'true'
 
       - name: terraform-docs
-        uses: terraform-docs/gh-actions@v1.0.0
+        uses: terraform-docs/gh-actions@v1
         with:
           working-dir: .
           output-file: README.md
@@ -93,7 +93,7 @@ jobs:
           git-push: 'true'
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: release-please
         uses: google-github-actions/release-please-action@v3

@@ -16,23 +16,23 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      AWS_DEFAULT_REGION: eu-central-1
       TFDIR: .
       TF_VAR_workspace_name: rover
       TF_VAR_subnet_ids: '["subnet-1", "subnet-2", "subnet-3"]'
       TFVER: 1.1.2 # Rover uses Terraform 1.1.2, so we need to use the same version for the plan file
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Configure AWS credentials
+        if: ${{ env.AWS_DEFAULT_REGION }}
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-region: ${{ env.AWS_DEFAULT_REGION }}
           role-to-assume: ${{ secrets.AWS_GH_OIDC }}
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v1
+        uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: ${{ env.TFVER }}
 
