@@ -16,9 +16,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
+      ARM_CLIENT_ID: "${{ secrets.AZURE_CLIENT_ID }}"
+      ARM_SKIP_PROVIDER_REGISTRATION: true
+      ARM_SUBSCRIPTION_ID: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+      ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
+      ARM_USE_OIDC: true
       TFDIR: .
+      TF_VAR_rg_name: github-oidc
       TF_VAR_subnet_ids: '["test"]'
-      TF_VAR_workspace_name: rover
       TFVER: 1.1.2 # Rover uses Terraform 1.1.2, so we need to use the same version for the plan file
     steps:
       - name: Generate token

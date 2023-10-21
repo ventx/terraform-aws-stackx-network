@@ -1,8 +1,12 @@
+ci:
+  - .dependabot/*
+  - .github/workflows/*
+
 documentation:
   - docs/**/*
   - .github/*
   - ./*.md
 
-ci:
-  - .dependabot/*
-  - .github/workflows/*
+terraform:
+  - examples/**/*.tf
+  - ./*.tf
