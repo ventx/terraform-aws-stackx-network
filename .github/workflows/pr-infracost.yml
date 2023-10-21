@@ -92,7 +92,7 @@ jobs:
     steps:
       - name: Update skipped check run to in_progress (test)
         uses: LouisBrunner/checks-action@v1.6.2
-        id: update
+        id: update-check-in-progress
         with:
           sha: ${{ github.sha }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -186,44 +186,55 @@ jobs:
                                      --pull-request=${{ github.event.client_payload.pull_request.number }} \
                                      --behavior=update
 
-      - name: Update check run to completed
-        uses: actions/github-script@v6
-        id: update-check-run
+      - name: Update check run to completed (test)
+        uses: LouisBrunner/checks-action@v1.6.2
+        id: update-check-completed
         if: ${{ always() }}
-        env:
-          job: ${{ github.job }}
-          number: ${{ github.event.client_payload.pull_request.number }}
-          # Conveniently, job.status maps to https://developer.github.com/v3/checks/runs/#update-a-check-run
-          conclusion: ${{ job.status }}
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const { data: pull } = await github.rest.pulls.get({
-              ...context.repo,
-              pull_number: process.env.number
-            });
-            const ref = pull.head.sha;
-            const { data: checks } = await github.rest.checks.listForRef({
-              ...context.repo,
-              ref
-            });
+          sha: ${{ github.sha }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: ${{ github.job }}
+          status: completed
+          conclusion: ${{ job.status }}
 
-            // Filter for the check run with a specific name and a 'skipped' conclusion
-            const check = checks.check_runs.filter(c => c.name === process.env.job && c.conclusion === "skipped");
-
-            if (check.length > 0) {
-              console.log(`Skipped check run found with name: ${check[0].name}`);
-
-              // Update the check run to 'in_progress'
-              const { data: result } = await github.rest.checks.update({
-                ...context.repo,
-                check_run_id: check[0].id,
-                status: 'completed',
-                conclusion: process.env.conclusion
-              });
-
-              console.log(`Successfully updated check run to 'in_progress'. Name: ${result.name}`);
-              return result;
-            } else {
-              console.log('No skipped check runs found with the specified name.');
-            }
+#      - name: Update check run to completed
+#        uses: actions/github-script@v6
+#        id: update-check-run
+#        if: ${{ always() }}
+#        env:
+#          job: ${{ github.job }}
+#          number: ${{ github.event.client_payload.pull_request.number }}
+#          # Conveniently, job.status maps to https://developer.github.com/v3/checks/runs/#update-a-check-run
+#          conclusion: ${{ job.status }}
+#        with:
+#          github-token: ${{ secrets.GITHUB_TOKEN }}
+#          script: |
+#            const { data: pull } = await github.rest.pulls.get({
+#              ...context.repo,
+#              pull_number: process.env.number
+#            });
+#            const ref = pull.head.sha;
+#            const { data: checks } = await github.rest.checks.listForRef({
+#              ...context.repo,
+#              ref
+#            });
+#
+#            // Filter for the check run with a specific name and a 'skipped' conclusion
+#            const check = checks.check_runs.filter(c => c.name === process.env.job && c.conclusion === "skipped");
+#
+#            if (check.length > 0) {
+#              console.log(`Skipped check run found with name: ${check[0].name}`);
+#
+#              // Update the check run to 'in_progress'
+#              const { data: result } = await github.rest.checks.update({
+#                ...context.repo,
+#                check_run_id: check[0].id,
+#                status: 'completed',
+#                conclusion: process.env.conclusion
+#              });
+#
+#              console.log(`Successfully updated check run to 'in_progress'. Name: ${result.name}`);
+#              return result;
+#            } else {
+#              console.log('No skipped check runs found with the specified name.');
+#            }
