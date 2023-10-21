@@ -168,7 +168,6 @@ jobs:
               return result;
             } else {
               console.log('No skipped check runs found with the specified name.');
-              return result;
             }
 
       - name: Configure AWS credentials
@@ -286,5 +285,4 @@ jobs:
               return result;
             } else {
               console.log('No skipped check runs found with the specified name.');
-              return result;
             }

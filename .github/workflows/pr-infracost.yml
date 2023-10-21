@@ -11,8 +11,8 @@ on:
 
 jobs:
   # Branch-based pull request
-  infracost-trusted:
-    name: infracost-branch
+  infracost-pr-branch:
+    name: infracost-pr-branch
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -71,8 +71,8 @@ jobs:
 
 
   # User with write access has commented /ok-to-test on a (fork-based) pull request
-  infracost-fork:
-    name: infracost-fork
+  infracost-pr-fork:
+    name: infracost-pr-fork
     runs-on: ubuntu-latest
     permissions:
       checks: write
@@ -114,6 +114,8 @@ jobs:
             if (check.length > 0) {
               console.log(`Skipped check run found with ID: ${check[0].id}`);
 
+              console.log(`context.repo: ${JSON.stringify(context.repo, 0, 2)}`);
+
               // Update the check run to 'in_progress'
               const { data: result } = await github.rest.checks.update({
                 ...context.repo,
@@ -126,7 +128,6 @@ jobs:
               return result;
             } else {
               console.log('No skipped check runs found with the specified name.');
-              return result;
             }
 
       - name: Setup Infracost
@@ -219,5 +220,4 @@ jobs:
               return result;
             } else {
               console.log('No skipped check runs found with the specified name.');
-              return result;
             }
