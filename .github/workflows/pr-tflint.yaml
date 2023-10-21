@@ -1,4 +1,4 @@
-name: Tflint
+name: TFLint
 
 on:
   pull_request:
@@ -9,7 +9,7 @@ on:
 
 jobs:
   tflint:
-    name: Tflint
+    name: tflint
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:

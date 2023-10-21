@@ -1,5 +1,4 @@
 name: Terraform
-run-name: test
 
 on:
   pull_request:
@@ -14,7 +13,7 @@ on:
 jobs:
   # Branch-based pull request
   terraform-trusted:
-    name: Terraform
+    name: terraform-branch
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -107,7 +106,7 @@ jobs:
 
   # User with write access has commented /ok-to-test on a (fork-based) pull request
   terraform-fork:
-    name: Terraform
+    name: terraform-fork
     runs-on: ubuntu-latest
     permissions:
       checks: write
