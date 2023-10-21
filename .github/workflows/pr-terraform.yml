@@ -147,8 +147,6 @@ jobs:
               ref
             });
 
-            console.log(`checks result is: ${JSON.stringify(checks, 0, 2)}`);
-
             // Filter for the check run with a specific name and a 'skipped' conclusion
             const check = checks.check_runs.filter(c => c.name === process.env.job && c.conclusion === "skipped");
 
@@ -161,8 +159,9 @@ jobs:
                 check_run_id: check[0].id,
                 status: 'in_progress'
               });
+              console.log(`update check-run result is: ${JSON.stringify(result, 0, 2)}`);
 
-              console.log(`Successfully updated check run to 'in_progress'. ID: ${result.id}`);
+              console.log(`Successfully updated check run to 'in_progress'. Name: ${result.name}`);
               return result;
             } else {
               console.log('No skipped check runs found with the specified name.');
@@ -265,13 +264,11 @@ jobs:
               ref
             });
 
-            console.log(`checks result is: ${checks}`);
-
             // Filter for the check run with a specific name and a 'skipped' conclusion
             const check = checks.check_runs.filter(c => c.name === process.env.job && c.conclusion === "skipped");
 
             if (check.length > 0) {
-              console.log(`Skipped check run found with ID: ${check[0].id}`);
+              console.log(`Skipped check run found with name: ${check[0].name}`);
 
               // Update the check run to 'in_progress'
               const { data: result } = await github.rest.checks.update({
@@ -280,6 +277,7 @@ jobs:
                 status: 'completed',
                 conclusion: process.env.conclusion
               });
+              console.log(`update check-run result is: ${JSON.stringify(result, 0, 2)}`);
 
               console.log(`Successfully updated check run to 'in_progress'. ID: ${result.id}`);
               return result;
