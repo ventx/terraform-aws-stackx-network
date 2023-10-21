@@ -14,14 +14,18 @@ jobs:
     if: ${{ github.event.issue.pull_request }}
     steps:
     - name: Generate token
-      id: generate_token
-      uses: tibdex/github-app-token@v1
+      id: app-token
+      uses: actions/create-github-app-token@v1
       with:
         app_id: ${{ secrets.APP_ID }}
         private_key: ${{ secrets.PRIVATE_KEY }}
 
     - name: Slash Command Dispatch
       uses: peter-evans/slash-command-dispatch@v3
+      permissions:
+        pull-requests: write  # For doing the emoji reaction on a PR comment
+        issues: write  # For doing the emoji reaction on an issue comment
+        contents: write  # For executing the repository_dispatch event
       env:
         TOKEN: ${{ steps.generate_token.outputs.token }}
       with:
