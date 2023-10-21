@@ -93,6 +93,7 @@ jobs:
       - name: Update skipped check run
         uses: actions/github-script@v6
         env:
+          job: ${{ github.job }}
           number: ${{ github.event.client_payload.pull_request.number }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -110,10 +111,9 @@ jobs:
             console.log(`checks result is: ${checks}`);
 
             // Filter for the check run with a specific name and a 'skipped' conclusion
-            const check = checks.check_runs.filter(c => c.name === "infracost-fork" && c.conclusion === "skipped");
+            const check = checks.check_runs.filter(c => c.name === process.env.job && c.conclusion === "skipped");
 
             if (check.length > 0) {
-              // Do something with the skipped check, e.g., log it
               console.log(`Skipped check run found with ID: ${check[0].id}`);
 
               // Update the check run to 'in_progress'
@@ -184,6 +184,7 @@ jobs:
         id: update-check-run
         if: ${{ always() }}
         env:
+          job: ${{ github.job }}
           number: ${{ github.event.client_payload.pull_request.number }}
           # Conveniently, job.status maps to https://developer.github.com/v3/checks/runs/#update-a-check-run
           conclusion: ${{ job.status }}
@@ -203,10 +204,9 @@ jobs:
             console.log(`checks result is: ${checks}`);
 
             // Filter for the check run with a specific name and a 'skipped' conclusion
-            const check = checks.check_runs.filter(c => c.name === "infracost-fork" && c.conclusion === "skipped");
+            const check = checks.check_runs.filter(c => c.name === process.env.job && c.conclusion === "skipped");
 
             if (check.length > 0) {
-              // Do something with the skipped check, e.g., log it
               console.log(`Skipped check run found with ID: ${check[0].id}`);
 
               // Update the check run to 'in_progress'
