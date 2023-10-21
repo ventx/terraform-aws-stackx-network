@@ -22,11 +22,11 @@ jobs:
 
     - name: Slash Command Dispatch
       uses: peter-evans/slash-command-dispatch@v3
-      permissions:
-        pull-requests: write  # For doing the emoji reaction on a PR comment
-        issues: write  # For doing the emoji reaction on an issue comment
-        contents: write  # For executing the repository_dispatch event
       with:
+        permissions:
+          pull-requests: write  # For doing the emoji reaction on a PR comment
+          issues: write  # For doing the emoji reaction on an issue comment
+          contents: write  # For executing the repository_dispatch event
         token: ${{ steps.app-token.outputs.token }}
         reaction-token: ${{ secrets.GITHUB_TOKEN }}
         issue-type: pull-request
