@@ -1,4 +1,5 @@
-name: PR - Terraform
+name: Terraform
+run-name: test
 
 on:
   pull_request:

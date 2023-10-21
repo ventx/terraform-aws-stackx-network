@@ -1,4 +1,4 @@
-name: PR - Tflint
+name: Tflint
 
 on:
   pull_request:

@@ -1,4 +1,4 @@
-name: PR - Infracost
+name: Infracost
 
 on:
   pull_request:

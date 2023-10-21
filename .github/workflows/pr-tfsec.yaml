@@ -1,4 +1,4 @@
-name: PR - Tfsec
+name: Tfsec
 
 on:
   pull_request:
