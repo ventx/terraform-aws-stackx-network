@@ -13,7 +13,7 @@ output "zones" {
   value       = var.zones
 }
 
-output "test-just-a-test" {
+output "test-just-a-test-test" {
   description = "just a test"
   value       = "test"
 }
