@@ -6,8 +6,9 @@ on:
       - 'examples/**'
       - 'tests/**'
       - '**.tf'
-    repository_dispatch:
-      types: [ ok-to-test-command ]
+  repository_dispatch:
+    types: [ ok-to-test-command ]
+
 
 jobs:
   # Branch-based pull request
