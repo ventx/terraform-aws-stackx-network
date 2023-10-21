@@ -98,6 +98,9 @@ jobs:
       - name: terraform-docs
         uses: terraform-docs/gh-actions@v1
 
+      - name: Fix .git owner # Fixes: https://github.com/terraform-docs/gh-actions/issues/90#issuecomment-1231312948
+        run: sudo chown runner:docker -R .git
+
       - name: Commit files
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
