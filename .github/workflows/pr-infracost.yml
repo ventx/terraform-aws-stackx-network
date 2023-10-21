@@ -108,7 +108,7 @@ jobs:
               ref
             });
 
-            console.log(`checks result is: ${checks}`);
+            console.log(`checks result is: ${JSON.stringify(checks, 0, 2)}`);
 
             // Filter for the check run with a specific name and a 'skipped' conclusion
             const check = checks.check_runs.filter(c => c.name === process.env.job && c.conclusion === "skipped");
