@@ -18,10 +18,6 @@ output "test-just-a-test" {
   value       = "test"
 }
 
-output "bla-test" {
-  description = "just another test"
-  value       = "test"
-}
 
 # --------------------------------------------------------------------------
 # VPC
