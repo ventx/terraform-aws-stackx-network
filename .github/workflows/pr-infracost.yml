@@ -174,7 +174,7 @@ jobs:
             infracost comment github --path=/tmp/infracost-base.json \
                                      --repo=$GITHUB_REPOSITORY \
                                      --github-token=${{github.token}} \
-                                     --pull-request=${{github.event.pull_request.number}} \
+                                     --pull-request=${{ github.event.client_payload.pull_request.number }} \
                                      --behavior=update
 
 
@@ -215,7 +215,7 @@ jobs:
               });
               console.log(`update check-run result is: ${JSON.stringify(result, 0, 2)}`);
 
-              console.log(`Successfully updated check run to 'in_progress'. ID: ${result.id}`);
+              console.log(`Successfully updated check run to 'in_progress'. Name: ${result.name}`);
               return result;
             } else {
               console.log('No skipped check runs found with the specified name.');
