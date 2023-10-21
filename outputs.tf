@@ -18,6 +18,10 @@ output "test-just-a-test" {
   value       = "test"
 }
 
+output "yet-test-just-a-test" {
+  description = "just a test"
+  value       = "test"
+}
 
 # --------------------------------------------------------------------------
 # VPC
