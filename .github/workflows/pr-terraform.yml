@@ -9,7 +9,6 @@ on:
   repository_dispatch:
     types: [ ok-to-test-command ]
 
-
 jobs:
   # Branch-based pull request
   terraform-pr-branch:
@@ -101,9 +100,6 @@ jobs:
               body: output
             })
 
-
-
-
   # User with write access has commented /ok-to-test on a (fork-based) pull request
   terraform-pr-fork:
     name: terraform-pr-fork
@@ -153,16 +149,12 @@ jobs:
             if (check.length > 0) {
               console.log(`Skipped check run found with name: ${check[0].name}`);
 
-              console.log(`context.repo: ${JSON.stringify(context.repo, 0, 2)}`);
-
               // Update the check run to 'in_progress'
               const { data: result } = await github.rest.checks.update({
                 ...context.repo,
                 check_run_id: check[0].id,
                 status: 'in_progress',
-                conclusion: ''
               });
-              console.log(`update check-run result is: ${JSON.stringify(result, 0, 2)}`);
 
               console.log(`Successfully updated check run to 'in_progress'. Name: ${result.name}`);
               return result;
@@ -279,9 +271,8 @@ jobs:
                 status: 'completed',
                 conclusion: process.env.conclusion
               });
-              console.log(`update check-run result is: ${JSON.stringify(result, 0, 2)}`);
 
-              console.log(`Successfully updated check run to 'in_progress'. Name: ${result.name}`);
+              console.log(`Successfully updated check run to 'completed'. Name: ${result.name}`);
               return result;
             } else {
               console.log('No skipped check runs found with the specified name.');
