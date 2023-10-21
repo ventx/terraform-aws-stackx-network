@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.2](https://github.com/ventx/terraform-aws-stackx-network/compare/v0.2.1...v0.2.2) (2023-10-21)
+
+
+### Bug Fixes
+
+* test refactored release-please ([7b38f56](https://github.com/ventx/terraform-aws-stackx-network/commit/7b38f560d60a8c75b871b381e9880a5c95de762c))
+
 ## [0.2.1](https://github.com/ventx/terraform-aws-stackx-network/compare/v0.2.0...v0.2.1) (2023-10-17)
 
 
