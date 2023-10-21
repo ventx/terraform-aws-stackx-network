@@ -31,8 +31,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          persist-credentials: false # required for ad-m/github-push-action with GH App Token
           fetch-depth: 0
+          ref: main
           token: ${{ steps.app-token.outputs.token }}
 
       - name: Configure AWS credentials
