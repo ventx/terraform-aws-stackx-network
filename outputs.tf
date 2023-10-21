@@ -23,10 +23,6 @@ output "yet-test-just-a-test" {
   value       = "test"
 }
 
-output "yet-another-test-just-a-test" {
-  description = "just a test"
-  value       = "test"
-}
 # --------------------------------------------------------------------------
 # VPC
 # --------------------------------------------------------------------------
