@@ -2,10 +2,6 @@ name: PR - Terraform
 
 on:
   pull_request:
-    paths:
-      - 'examples/**'
-      - 'tests/**'
-      - '**.tf'
     repository_dispatch:
       types: [ ok-to-test-command ]
 
