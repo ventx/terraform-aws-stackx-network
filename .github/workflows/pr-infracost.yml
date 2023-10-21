@@ -12,7 +12,7 @@ on:
 jobs:
   # Branch-based pull request
   infracost-trusted:
-    name: Infracost
+    name: infracost-branch
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -72,7 +72,7 @@ jobs:
 
   # User with write access has commented /ok-to-test on a (fork-based) pull request
   infracost-fork:
-    name: Infracost
+    name: infracost-fork
     runs-on: ubuntu-latest
     permissions:
       checks: write
@@ -90,10 +90,9 @@ jobs:
         github.event.client_payload.slash_command.args.named.sha
       )
     steps:
-      - name: Create check run
+      - name: Update skipped check run
         uses: actions/github-script@v6
         env:
-          job: ${{ github.job }}
           number: ${{ github.event.client_payload.pull_request.number }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -102,13 +101,34 @@ jobs:
               ...context.repo,
               pull_number: process.env.number
             });
-            const sha = pull.head.sha;
-            const { data: check } = await github.rest.checks.create({
+            const ref = pull.head.sha;
+            const { data: checks } = await github.rest.checks.listForRef({
               ...context.repo,
-              name: process.env.job,
-              head_sha: sha
+              ref
             });
-            return check;
+
+            console.log(`checks result is: ${checks}`);
+
+            // Filter for the check run with a specific name and a 'skipped' conclusion
+            const check = checks.check_runs.filter(c => c.name === "infracost-fork" && c.conclusion === "skipped");
+
+            if (check.length > 0) {
+              // Do something with the skipped check, e.g., log it
+              console.log(`Skipped check run found with ID: ${check[0].id}`);
+
+              // Update the check run to 'in_progress'
+              const { data: result } = await github.rest.checks.update({
+                ...context.repo,
+                check_run_id: check[0].id,
+                status: 'in_progress'
+              });
+
+              console.log(`Successfully updated check run to 'in_progress'. ID: ${result.id}`);
+              return result;
+            } else {
+              console.log('No skipped check runs found with the specified name.');
+              return result;
+            }
 
       - name: Setup Infracost
         uses: infracost/actions/setup@v2
@@ -165,7 +185,6 @@ jobs:
         if: ${{ always() }}
         env:
           number: ${{ github.event.client_payload.pull_request.number }}
-          job: ${{ github.job }}
           # Conveniently, job.status maps to https://developer.github.com/v3/checks/runs/#update-a-check-run
           conclusion: ${{ job.status }}
         with:
@@ -176,19 +195,31 @@ jobs:
               pull_number: process.env.number
             });
             const ref = pull.head.sha;
-
             const { data: checks } = await github.rest.checks.listForRef({
               ...context.repo,
               ref
             });
 
-            const check = checks.check_runs.filter(c => c.name === process.env.job);
+            console.log(`checks result is: ${checks}`);
 
-            const { data: result } = await github.rest.checks.update({
-              ...context.repo,
-              check_run_id: check[0].id,
-              status: 'completed',
-              conclusion: process.env.conclusion
-            });
+            // Filter for the check run with a specific name and a 'skipped' conclusion
+            const check = checks.check_runs.filter(c => c.name === "infracost-fork" && c.conclusion === "skipped");
 
-            return result;
+            if (check.length > 0) {
+              // Do something with the skipped check, e.g., log it
+              console.log(`Skipped check run found with ID: ${check[0].id}`);
+
+              // Update the check run to 'in_progress'
+              const { data: result } = await github.rest.checks.update({
+                ...context.repo,
+                check_run_id: check[0].id,
+                status: 'completed',
+                conclusion: process.env.conclusion
+              });
+
+              console.log(`Successfully updated check run to 'in_progress'. ID: ${result.id}`);
+              return result;
+            } else {
+              console.log('No skipped check runs found with the specified name.');
+              return result;
+            }
