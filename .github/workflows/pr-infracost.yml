@@ -104,7 +104,6 @@ jobs:
             const sha = pull.head.sha;
             const { data: check } = await github.rest.checks.create({
               ...context.repo,
-              name: process.env.name,
               head_sha: sha
             });
             return check;
