@@ -202,8 +202,6 @@ jobs:
               body: output
             })
 
-
-
       # Update check run called "terraform-fork"
       - uses: actions/github-script@v6
         id: update-check-run
