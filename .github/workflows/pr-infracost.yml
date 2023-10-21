@@ -90,45 +90,53 @@ jobs:
         github.event.client_payload.slash_command.args.named.sha
       )
     steps:
-      - name: Update skipped check run
-        uses: actions/github-script@v6
-        env:
-          job: ${{ github.job }}
-          number: ${{ github.event.client_payload.pull_request.number }}
+      - name: Update skipped check run to in_progress (test)
+        uses: LouisBrunner/checks-action@v1.6.2
+        id: update
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const { data: pull } = await github.rest.pulls.get({
-              ...context.repo,
-              pull_number: process.env.number
-            });
-            const ref = pull.head.sha;
-            const { data: checks } = await github.rest.checks.listForRef({
-              ...context.repo,
-              ref
-            });
-
-            // Filter for the check run with a specific name and a 'skipped' conclusion
-            const check = checks.check_runs.filter(c => c.name === process.env.job && c.conclusion === "skipped");
-
-            if (check.length > 0) {
-              console.log(`Skipped check run found with ID: ${check[0].id}`);
-
-              console.log(`context.repo: ${JSON.stringify(context.repo, 0, 2)}`);
-
-              // Update the check run to 'in_progress'
-              const { data: result } = await github.rest.checks.update({
-                ...context.repo,
-                check_run_id: check[0].id,
-                status: 'in_progress'
-              });
-              console.log(`update check-run result is: ${JSON.stringify(result, 0, 2)}`);
-
-              console.log(`Successfully updated check run to 'in_progress'. Name: ${result.name}`);
-              return result;
-            } else {
-              console.log('No skipped check runs found with the specified name.');
-            }
+          sha: ${{ github.sha }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: ${{ github.job }}
+          status: in_progress
+#      - name: Update skipped check run to in_progress
+#        uses: actions/github-script@v6
+#        env:
+#          job: ${{ github.job }}
+#          number: ${{ github.event.client_payload.pull_request.number }}
+#        with:
+#          github-token: ${{ secrets.GITHUB_TOKEN }}
+#          script: |
+#            const { data: pull } = await github.rest.pulls.get({
+#              ...context.repo,
+#              pull_number: process.env.number
+#            });
+#            const ref = pull.head.sha;
+#            const { data: checks } = await github.rest.checks.listForRef({
+#              ...context.repo,
+#              ref
+#            });
+#
+#            // Filter for the check run with a specific name and a 'skipped' conclusion
+#            const check = checks.check_runs.filter(c => c.name === process.env.job && c.conclusion === "skipped");
+#
+#            if (check.length > 0) {
+#              console.log(`Skipped check run found with ID: ${check[0].id}`);
+#
+#              console.log(`context.repo: ${JSON.stringify(context.repo, 0, 2)}`);
+#
+#              // Update the check run to 'in_progress'
+#              const { data: result } = await github.rest.checks.update({
+#                ...context.repo,
+#                check_run_id: check[0].id,
+#                status: 'in_progress'
+#              });
+#              console.log(`update check-run result is: ${JSON.stringify(result, 0, 2)}`);
+#
+#              console.log(`Successfully updated check run to 'in_progress'. Name: ${result.name}`);
+#              return result;
+#            } else {
+#              console.log('No skipped check runs found with the specified name.');
+#            }
 
       - name: Setup Infracost
         uses: infracost/actions/setup@v2
@@ -178,9 +186,8 @@ jobs:
                                      --pull-request=${{ github.event.client_payload.pull_request.number }} \
                                      --behavior=update
 
-
-      # Update check run called "infracost-fork"
-      - uses: actions/github-script@v6
+      - name: Update check run to completed
+        uses: actions/github-script@v6
         id: update-check-run
         if: ${{ always() }}
         env:
@@ -214,7 +221,6 @@ jobs:
                 status: 'completed',
                 conclusion: process.env.conclusion
               });
-              console.log(`update check-run result is: ${JSON.stringify(result, 0, 2)}`);
 
               console.log(`Successfully updated check run to 'in_progress'. Name: ${result.name}`);
               return result;
