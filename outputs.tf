@@ -18,7 +18,7 @@ output "test-just-a-test" {
   value       = "test"
 }
 
-output "another-test"
+output "another-test" {
   description = "another a test"
   value       = "test"
 }
