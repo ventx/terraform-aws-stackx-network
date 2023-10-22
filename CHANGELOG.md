@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.3](https://github.com/ventx/terraform-aws-stackx-network/compare/v0.2.2...v0.2.3) (2023-10-22)
+
+
+### Bug Fixes
+
+* remove validation to restrict AWS regions (not neccessary anymore) ([b2cebc0](https://github.com/ventx/terraform-aws-stackx-network/commit/b2cebc0afdf141b5006c68415b84cb86ce4fac27))
+
 ## [0.2.2](https://github.com/ventx/terraform-aws-stackx-network/compare/v0.2.1...v0.2.2) (2023-10-21)
 
 
