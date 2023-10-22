@@ -259,7 +259,6 @@ No modules.
 | <a name="input_single_nat_gateway"></a> [single\_nat\_gateway](#input\_single\_nat\_gateway) | Should be true if you want to provision a single shared NAT Gateway across all of your private networks (cost efficiency) | `bool` | `false` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | User specific Tags / Labels to attach to resources (will be merged with module tags) | `map(string)` | `{}` | no |
 | <a name="input_vpc_cidr_add"></a> [vpc\_cidr\_add](#input\_vpc\_cidr\_add) | Add this number to the VPC CIDR to allow for multiple same region VPCs with different CIDRs | `number` | `0` | no |
-| <a name="input_workspace_name"></a> [workspace\_name](#input\_workspace\_name) | Unique Workspace Name for naming / tagging | `string` | n/a | yes |
 | <a name="input_zones"></a> [zones](#input\_zones) | Number of AWS Availability Zones to use for every subnet | `number` | `3` | no |
 
 ## Outputs
