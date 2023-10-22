@@ -48,10 +48,6 @@ variable "region" {
   description = "AWS Region (e.g. `eu-central-1`)"
   type        = string
   default     = "eu-central-1"
-  validation {
-    condition     = contains(["eu-central-1", "eu-west-2", "us-east-1", "us-west-2", "ap-east-1", "ap-southeast-1", "ap-southeast-2"], var.region)
-    error_message = "AWS Region you selected is invalid or not enabled."
-  }
 }
 
 variable "zones" {
