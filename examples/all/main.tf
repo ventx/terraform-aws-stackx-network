@@ -1,10 +1,9 @@
 module "network" {
   source = "../../"
 
-  name           = "terratest-all-0-network"
-  workspace_name = var.workspace_name
-  cluster_name   = var.cluster_name
-  tags           = var.tags
+  name         = "terratest-all-0-network"
+  cluster_name = var.cluster_name
+  tags         = var.tags
 
   region = var.region
 

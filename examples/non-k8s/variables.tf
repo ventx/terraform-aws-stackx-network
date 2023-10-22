@@ -3,12 +3,7 @@ variable "tags" {
     "owner"     = "terraform-aws-network",
     "managedby" = "terratest",
     "project"   = "stackx",
-    "workspace" = "terratest"
   }
-}
-
-variable "workspace_name" {
-  default = "terratest"
 }
 
 variable "cluster_name" {

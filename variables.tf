@@ -19,11 +19,6 @@ variable "k8s" {
   default     = true
 }
 
-variable "workspace_name" {
-  description = "Unique Workspace Name for naming / tagging"
-  type        = string
-}
-
 variable "cluster_name" {
   description = "EKS Cluster name to add in tags for ELB and cluster-autoscaler / karpenter discovery of subnets / VPC"
   type        = string

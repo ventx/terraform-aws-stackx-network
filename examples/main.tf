@@ -1,9 +1,8 @@
 module "network" {
   source = "../"
 
-  name           = "stackx-0-network"
-  workspace_name = var.workspace_name
-  cluster_name   = var.cluster_name
+  name         = "stackx-0-network"
+  cluster_name = var.cluster_name
   tags = {
     test     = true,
     deleteme = true

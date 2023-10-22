@@ -7,10 +7,6 @@ variable "tags" {
   }
 }
 
-variable "workspace_name" {
-  default = "terratest"
-}
-
 variable "cluster_name" {
   default = "stackx"
 }
